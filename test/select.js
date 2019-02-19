@@ -7,7 +7,6 @@ import {
   $each,
   $eachKey,
   $eachPair,
-  $pick,
   $nav,
   $apply
 } from 'qim/src';
@@ -93,16 +92,6 @@ test('select pairs', t => {
   );
 });
 
-test('$pick', t => {
-  t.deepEqual(
-    select(
-      [$pick('joe', 'mary'), $each, 'name'],
-      {joe: {name: 'Joe'}, mary: {name: 'Mary'}, bob: {name: 'Bob'}}
-    ),
-    ['Joe', 'Mary']
-  );
-});
-
 test('multi $nav', t => {
   t.deepEqual(
     select(
@@ -113,5 +102,25 @@ test('multi $nav', t => {
       {x: 1, y: 2}
     ),
     [10, 20]
+  );
+});
+
+test('stop with undefined', t => {
+  t.deepEqual(
+    select(undefined, {x: 1}),
+    []
+  );
+
+  t.deepEqual(
+    select(['x', undefined, 'y'], {x: {y: 1}}),
+    []
+  );
+
+  t.deepEqual(
+    select([
+      ['a', undefined, 'x'],
+      ['b', 'x']
+    ], {a: {x: 'ax'}, b: {x: 'bx'}}),
+    ['bx']
   );
 });

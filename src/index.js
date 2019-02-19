@@ -14,7 +14,7 @@ export {default as $eachPair} from './$eachPair';
 // Transformation navigators
 export {default as $apply} from './$apply';
 export {default as $set} from './$set';
-export {default as $none} from './$none';
+export {$none as $none} from './utils/data';
 export {default as $default} from './$default';
 export {default as $merge} from './$merge';
 export {default as $mergeDeep} from './$mergeDeep';
@@ -25,7 +25,8 @@ export {default as $end} from './$end';
 export {default as $pick} from './$pick';
 export {default as $slice} from './$slice';
 
-// Array item navigators
+// Indexed item navigators
+export {default as $at} from './$at';
 export {default as $first} from './$first';
 export {default as $last} from './$last';
 
@@ -40,3 +41,4 @@ export {default as $traverse} from './$traverse';
 
 // Utilities
 export {isReduced as isReduced} from './utils/reduced';
+export {isNone as isNone} from './utils/data';

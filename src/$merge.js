@@ -1,10 +1,17 @@
 import $traverse from './$traverse';
-import createMerge from './utils/createMerge';
+import {wrap} from './utils/data';
 
-const merge = createMerge();
+export function Merge (spec, isDeep) {
+  this.spec = spec;
+  this.isDeep = isDeep;
+}
 
-const $merge = (spec) => $traverse(
-  (type, object, next) => next(merge(spec, object))
+Merge.prototype = $traverse(
+  function (type, object, next) {
+    return next(wrap(object).merge(this.spec, this.isDeep).value());
+  }
 );
+
+const $merge = spec => new Merge(spec);
 
 export default $merge;

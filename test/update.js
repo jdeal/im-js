@@ -12,13 +12,13 @@ import {
   $apply,
   $none,
   $slice,
-  $pick,
   $nav,
   $end
 } from 'qim/src';
 
 const increment = value => value + 1;
 const isEven = value => value % 2 === 0;
+const toUpperCase = s => s.toUpperCase();
 
 test('update identity', t => {
   t.deepEqual(
@@ -32,6 +32,46 @@ test('update $set', t => {
     update(['x', $set(2)], {x: 1}),
     {x: 2}
   );
+});
+
+test('update non-existent in object with undefined', t => {
+  t.deepEqual(
+    update(['x', $set(undefined)], {}),
+    {}
+  );
+});
+
+test('update non-existent in array with undefined', t => {
+  t.deepEqual(
+    update([1, $set(undefined)], ['a']),
+    ['a']
+  );
+});
+
+test('update array with holes', t => {
+  const array = [];
+  const other = [];
+  array[2] = 'z';
+  other[0] = 'a';
+  other[2] = 'z';
+  const newArray = update([0, $set('a')], array);
+  t.is(newArray[0], 'a');
+  t.is(newArray[1], undefined);
+  t.is(newArray[2], 'z');
+  t.false(1 in newArray);
+});
+
+test('update array with holes', t => {
+  const array = ['a'];
+  array[2] = 'z';
+  const other = array.slice(0);
+  other[0] = 'A';
+
+  const newArray = update([$each, letter => letter === 'a', $set('A')], array);
+  t.is(newArray[0], 'A');
+  t.is(newArray[1], undefined);
+  t.is(newArray[2], 'z');
+  t.false(1 in newArray);
 });
 
 test('update $apply', t => {
@@ -152,13 +192,6 @@ test('remove non-existent key', t => {
   );
 });
 
-test('remove non-existent path', t => {
-  t.deepEqual(
-    update(['x', 'y', $none], {}),
-    {}
-  );
-});
-
 test('remove item', t => {
   t.deepEqual(
     update([0, $none], ['a', 'b']),
@@ -187,6 +220,13 @@ test('remove all keys with $none', t => {
   );
 });
 
+test('remove even keys with $none', t => {
+  t.deepEqual(
+    update([$eachKey, isEven, $none], ['a', 'b', 'c', 'd']),
+    ['b', 'd']
+  );
+});
+
 test('remove all pairs from array with $none', t => {
   t.deepEqual(
     update([$eachPair, $none], ['a', 'b']),
@@ -208,17 +248,10 @@ test('replace slice', t => {
   );
 });
 
-test('replace pick', t => {
+test('replace slice with dynamic', t => {
   t.deepEqual(
-    update([$pick('x', 'y'), $set({a: 1})], {x: 1, y: 1, z: 1}),
-    {a: 1, z: 1}
-  );
-});
-
-test('apply pick', t => {
-  t.deepEqual(
-    update([$pick(['x', 'y']), $each, $apply(val => val + 1)], {x: 1, y: 1, z: 1}),
-    {x: 2, y: 2, z: 1}
+    update([$slice(0, 2), $each, $apply(toUpperCase)], ['a', 'b', 'c', 'd']),
+    ['A', 'B', 'c', 'd']
   );
 });
 
@@ -255,5 +288,25 @@ test('multi $nav', t => {
       {x: 1, y: 2}
     ),
     {x: 10, y: 20}
+  );
+});
+
+test('stop with undefined', t => {
+  t.deepEqual(
+    update(undefined, {x: 1}),
+    {x: 1}
+  );
+
+  t.deepEqual(
+    update(['x', undefined, 'y', $apply(value => value + 1)], {x: {y: 1}}),
+    {x: {y: 1}}
+  );
+
+  t.deepEqual(
+    update([
+      ['a', undefined, 'x', $apply(s => s.toUpperCase())],
+      ['b', 'x', $apply(s => s.toUpperCase())]
+    ], {a: {x: 'ax'}, b: {x: 'bx'}}),
+    {a: {x: 'ax'}, b: {x: 'BX'}}
   );
 });

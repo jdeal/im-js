@@ -1,10 +1,5 @@
-import $traverse from './$traverse';
-import createMerge from './utils/createMerge';
+import {Merge} from './$merge';
 
-const mergeDeep = createMerge({isDeep: true});
-
-const $mergeDeep = (spec) => $traverse(
-  (type, object, next) => next(mergeDeep(spec, object))
-);
+const $mergeDeep = spec => new Merge(spec, true);
 
 export default $mergeDeep;

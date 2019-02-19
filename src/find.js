@@ -2,7 +2,7 @@ import {traverseEach} from './traverse';
 import {selectKey} from './$traverse';
 import reduced, {unreduced} from './utils/reduced';
 import {curry2} from './utils/curry';
-import {isNone} from './$none';
+import {isNone, getPropertyUnsafe} from './utils/data';
 
 // find is a select that returns a "reduced" envelope as soon as it selects
 // anything.
@@ -33,7 +33,7 @@ const find = (path, obj) => {
       obj = undefined;
       break;
     }
-    obj = obj[key];
+    obj = getPropertyUnsafe(key, obj);
     pathIndex++;
   }
 
